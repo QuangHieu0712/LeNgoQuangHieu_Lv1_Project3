@@ -261,40 +261,45 @@ FROM customer;
 
 ## 8. Project Structure
 
-The project files are organized as follows:
+The project files are organized by responsibility:
 
-```text
+~~~text
 LeNgoQuangHieu_Lv1_Project3/
 │
-├── config.py
-├── connect.py
+├── config/
+│   ├── __init__.py
+│   └── config.py
+├── database/
+│   ├── __init__.py
+│   └── connect.py
+├── data_generation/
+│   ├── __init__.py
+│   ├── generate_brand.py
+│   ├── generate_category.py
+│   ├── generate_seller.py
+│   ├── generate_customer.py
+│   ├── generate_product.py
+│   ├── generate_promotion.py
+│   └── generate_promotion_product.py
 │
-├── generate_brand.py
-├── generate_category.py
-├── generate_data_seller.py
-├── generate_data_customer.py
-├── generate_product.py
-├── generate_promotion.py
-├── generate_promotion_product.py
-│
+├── main.py
 ├── requirements.txt
 ├── README.md
 └── .gitignore
-```
+~~~
 
 **File descriptions:**
 
-| File                            | Responsibility |
-|---------------------------------|---|
-| `config.py`                     | Stores PostgreSQL connection configuration. |
-| `connect.py`                    | Establishes and manages database connections. |
-| `generate_brand.py`             | Generates brand records. |
-| `generate_category.py`          | Generates parent and child categories. |
-| `generate_data_seller.py`       | Generates seller records. |
-| `generate_data_customer.py`     | Generates customer records. |
-| `generate_product.py`           | Generates product records with valid Foreign Keys. |
-| `generate_promotion.py`         | Generates promotional campaigns. |
-| `generate_promotion_product.py` | Generates promotion-product mappings. |
+| File | Responsibility |
+|---|---|
+| config/config.py | Stores PostgreSQL connection configuration. |
+| database/connect.py | Establishes PostgreSQL connections. |
+| data_generation/ | Contains the scripts that create each dataset. |
+| main.py | Runs the generation steps in dependency order. |
+| requirements.txt | Lists the Python dependencies. |
+| .gitignore | Ignores virtual environments, IDE files, caches, and .env files. |
+
+The database schema is created separately; this repository does not currently include a schema.sql file.
 
 ## 9. Installation and Setup
 
@@ -335,7 +340,7 @@ psycopg2-binary==2.9.13
 
 ### 9.4 Configure Database Connection
 
-Update `config.py` with your PostgreSQL connection information:
+Update config/config.py with your PostgreSQL connection information:
 
 ```python
 DB_CONFIG = {
@@ -347,27 +352,27 @@ DB_CONFIG = {
 }
 ```
 
-Replace `YOUR_PASSWORD` with your actual PostgreSQL password.
+Replace `YOUR_PASSWORD` with your local PostgreSQL password. Do not commit a real password.
 
-**Security note:** Do not commit database passwords or other credentials to a public Git repository. Use environment variables or a local configuration file excluded through `.gitignore`.
+**Security note:** config/config.py is tracked by Git. Keep the password as a placeholder in commits; never commit a real database password. For a public portfolio, move credentials to environment variables before sharing the repository.
 
 ## 10. Running the Project
 
-Make sure the database schema has been created and the required tables are available before generating data.
+Make sure the PostgreSQL database and required tables have been created. Activate the virtual environment, then run the pipeline from the project root:
 
-Run the generation scripts in the following order:
+~~~bash
+python main.py
+~~~
 
-```bash
-python generate_brand.py
-python generate_category.py
-python generate_data_seller.py
-python generate_data_customer.py
-python generate_product.py
-python generate_promotion.py
-python generate_promotion_product.py
-```
+The entry point runs the generators in dependency order: brand, category, seller, customer, product, promotion, and promotion-product mapping.
 
-The execution order ensures that referenced records exist before dependent records are inserted.
+To run one generator by itself, use Python module mode from the project root. For example:
+
+~~~bash
+python -m data_generation.generate_brand
+~~~
+
+Product generation requires brand, category, and seller data. Promotion-product mapping requires both promotion and product data.
 
 ## 11. Project Results
 

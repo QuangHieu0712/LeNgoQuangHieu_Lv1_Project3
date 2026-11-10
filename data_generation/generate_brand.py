@@ -1,5 +1,5 @@
 from faker import Faker
-from connect import connect_db
+from database.connect import connect_db
 
 fake = Faker("en_US")
 
